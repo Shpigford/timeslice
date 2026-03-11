@@ -4,6 +4,14 @@ import {
 } from 'date-fns'
 import { motion } from 'framer-motion'
 
+function getContrastColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.55 ? '#1a1a1a' : '#ffffff'
+}
+
 export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick }) {
   const [dragOverDay, setDragOverDay] = useState(null)
   const WEEKS = 6
@@ -65,7 +73,7 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
               return (
                 <div
                   key={di}
-                  className={`border-r border-b border-border min-h-[72px] p-1 transition-colors ${
+                  className={`border-r border-b border-border min-h-[90px] p-1 transition-colors ${
                     today ? 'bg-today/20 dark:bg-today-dark/20' : 'hover:bg-muted/30'
                   } ${isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''}`}
                   onDragOver={(e) => {
@@ -75,26 +83,37 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
                   onDragLeave={() => setDragOverDay(null)}
                   onDrop={(e) => handleDrop(e, day)}
                 >
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className={`text-[10px] font-medium ${
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-[11px] font-medium ${
                       today ? 'bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full' : 'text-muted-foreground'
                     }`}>
-                      {format(day, 'MMM d')}
+                      {format(day, 'd')}
                     </span>
                     {totalHours > 0 && (
-                      <span className="text-[9px] text-muted-foreground">{totalHours}h</span>
+                      <span className="text-[9px] text-muted-foreground font-medium">{totalHours}h</span>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-0.5">
-                    {dayBlocks.map(block => (
+                  <div className="flex flex-col gap-0.5">
+                    {dayBlocks.slice(0, 3).map(block => (
                       <div
                         key={block.id}
-                        className="w-2.5 h-2.5 rounded-sm cursor-pointer hover:scale-125 transition-transform"
-                        style={{ backgroundColor: block.client_color }}
-                        title={`${block.client_name} - ${block.hours}h`}
+                        className="rounded px-1 py-0.5 cursor-pointer hover:opacity-80 transition-opacity truncate"
+                        style={{
+                          backgroundColor: block.client_color,
+                          color: getContrastColor(block.client_color || '#888888')
+                        }}
                         onClick={() => onBlockClick(block)}
-                      />
+                      >
+                        <span className="text-[10px] font-medium leading-tight">
+                          {block.client_name} · {block.hours}h
+                        </span>
+                      </div>
                     ))}
+                    {dayBlocks.length > 3 && (
+                      <span className="text-[9px] text-muted-foreground pl-1">
+                        +{dayBlocks.length - 3} more
+                      </span>
+                    )}
                   </div>
                 </div>
               )
