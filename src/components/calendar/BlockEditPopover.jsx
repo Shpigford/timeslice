@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Trash2 } from 'lucide-react'
 
 export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, clients }) {
-  const [hours, setHours] = useState('4')
+  const [hours, setHours] = useState('6')
   const [slot, setSlot] = useState('AM')
   const [date, setDate] = useState('')
   const [clientId, setClientId] = useState('')
@@ -14,7 +14,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
   // Reset state when block changes
   useEffect(() => {
     if (block) {
-      setHours(block.hours?.toString() || '4')
+      setHours(block.hours?.toString() || '6')
       setSlot(block.slot || 'AM')
       setDate(block.date || '')
       setClientId(block.client_id?.toString() || '')
@@ -23,7 +23,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
 
   const handleSave = () => {
     onSave(block.id, {
-      hours: parseFloat(hours) || 4,
+      hours: parseFloat(hours) || 6,
       slot,
       date,
       client_id: parseInt(clientId),

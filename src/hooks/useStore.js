@@ -63,7 +63,7 @@ export function useStore() {
   }, [])
 
   // Block CRUD
-  const addBlock = useCallback(async (clientId, date, slot, hours = 4) => {
+  const addBlock = useCallback(async (clientId, date, slot, hours = 6) => {
     const block = await blocksApi.create({ client_id: clientId, date, slot, hours })
     setBlocks(prev => [...prev, block])
     return block
