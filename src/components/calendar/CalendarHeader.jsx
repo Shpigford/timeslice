@@ -7,13 +7,11 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
   const navigatePrev = () => {
     if (view === 'week') setCurrentDate(d => subWeeks(d, 1))
     else if (view === 'month') setCurrentDate(d => subMonths(d, 1))
-    else setCurrentDate(d => subWeeks(d, 6))
   }
 
   const navigateNext = () => {
     if (view === 'week') setCurrentDate(d => addWeeks(d, 1))
     else if (view === 'month') setCurrentDate(d => addMonths(d, 1))
-    else setCurrentDate(d => addWeeks(d, 6))
   }
 
   const goToday = () => setCurrentDate(new Date())
@@ -27,7 +25,11 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
       }
       return `${format(ws, 'MMM d')} – ${format(we, 'MMM d, yyyy')}`
     }
-    return format(currentDate, 'MMMM yyyy')
+    const nextMonth = addMonths(currentDate, 1)
+    if (currentDate.getFullYear() === nextMonth.getFullYear()) {
+      return `${format(currentDate, 'MMMM')} – ${format(nextMonth, 'MMMM yyyy')}`
+    }
+    return `${format(currentDate, 'MMM yyyy')} – ${format(nextMonth, 'MMM yyyy')}`
   }
 
   return (
@@ -66,7 +68,6 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
           <TabsList>
             <TabsTrigger value="week">Week</TabsTrigger>
             <TabsTrigger value="month">Month</TabsTrigger>
-            <TabsTrigger value="multiweek">6 Weeks</TabsTrigger>
           </TabsList>
         </Tabs>
 

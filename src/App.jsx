@@ -5,7 +5,6 @@ import { ClientSidebar } from '@/components/sidebar/ClientSidebar'
 import { CalendarHeader } from '@/components/calendar/CalendarHeader'
 import { WeekView } from '@/components/calendar/WeekView'
 import { MonthView } from '@/components/calendar/MonthView'
-import { MultiWeekView } from '@/components/calendar/MultiWeekView'
 import { BlockEditDialog } from '@/components/calendar/BlockEditPopover'
 import { SummaryPanel } from '@/components/summary/SummaryPanel'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -111,15 +110,7 @@ export default function App() {
                     onBlockUpdate={handleBlockUpdate}
                   />
                 )}
-                {store.view === 'multiweek' && (
-                  <MultiWeekView
-                    currentDate={store.currentDate}
-                    blocks={store.blocks}
-                    onDropClient={handleDropClient}
-                    onBlockClick={handleBlockClick}
-                    onBlockUpdate={handleBlockUpdate}
-                  />
-                )}
+
               </motion.div>
             ) : (
               <motion.div
