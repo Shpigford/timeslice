@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { CLIENT_COLORS } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -13,6 +14,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
   const [name, setName] = useState('')
   const [color, setColor] = useState(CLIENT_COLORS[0].value)
   const [monthlyHours, setMonthlyHours] = useState('')
+  const [deleteClientId, setDeleteClientId] = useState(null)
 
   const openAdd = () => {
     setEditingClient(null)
@@ -44,8 +46,11 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
     setDialogOpen(false)
   }
 
-  const handleDelete = async (id) => {
-    await onDelete(id)
+  const handleDeleteConfirm = async () => {
+    if (deleteClientId) {
+      await onDelete(deleteClientId)
+      setDeleteClientId(null)
+    }
   }
 
   // Calculate hours this month per client
@@ -123,7 +128,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 hover:text-destructive"
-                    onClick={(e) => { e.stopPropagation(); handleDelete(client.id) }}
+                    onClick={(e) => { e.stopPropagation(); setDeleteClientId(client.id) }}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -194,6 +199,14 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deleteClientId}
+        onOpenChange={(open) => !open && setDeleteClientId(null)}
+        title="Delete Client"
+        description="Are you sure you want to delete this client and all their time blocks? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }

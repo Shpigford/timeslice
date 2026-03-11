@@ -8,6 +8,7 @@ import { MonthView } from '@/components/calendar/MonthView'
 import { MultiWeekView } from '@/components/calendar/MultiWeekView'
 import { BlockEditDialog } from '@/components/calendar/BlockEditPopover'
 import { SummaryPanel } from '@/components/summary/SummaryPanel'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { AnimatePresence, motion } from 'framer-motion'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const theme = useTheme()
   const [editingBlock, setEditingBlock] = useState(null)
   const [activeTab, setActiveTab] = useState('calendar')
+  const [deleteBlockId, setDeleteBlockId] = useState(null)
 
   const handleDropClient = async (clientId, date, slot) => {
     await store.addBlock(clientId, date, slot, 4)
@@ -28,9 +30,16 @@ export default function App() {
     await store.updateBlock(id, data)
   }
 
-  const handleBlockDelete = async (id) => {
-    await store.deleteBlock(id)
+  const confirmBlockDelete = (id) => {
+    setDeleteBlockId(id)
     setEditingBlock(null)
+  }
+
+  const handleBlockDelete = async () => {
+    if (deleteBlockId) {
+      await store.deleteBlock(deleteBlockId)
+      setDeleteBlockId(null)
+    }
   }
 
   const handleBlockUpdate = async (id, data) => {
@@ -89,7 +98,7 @@ export default function App() {
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
                     onBlockUpdate={handleBlockUpdate}
-                    onBlockDelete={handleBlockDelete}
+                    onBlockDelete={confirmBlockDelete}
                   />
                 )}
                 {store.view === 'month' && (
@@ -98,7 +107,7 @@ export default function App() {
                     blocks={store.blocks}
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
-                    onBlockDelete={handleBlockDelete}
+                    onBlockDelete={confirmBlockDelete}
                   />
                 )}
                 {store.view === 'multiweek' && (
@@ -135,8 +144,16 @@ export default function App() {
         open={!!editingBlock}
         onOpenChange={(open) => !open && setEditingBlock(null)}
         onSave={handleBlockSave}
-        onDelete={handleBlockDelete}
+        onDelete={confirmBlockDelete}
         clients={store.clients}
+      />
+
+      <ConfirmDialog
+        open={!!deleteBlockId}
+        onOpenChange={(open) => !open && setDeleteBlockId(null)}
+        title="Delete Block"
+        description="Are you sure you want to delete this time block? This action cannot be undone."
+        onConfirm={handleBlockDelete}
       />
     </div>
   )
