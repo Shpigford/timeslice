@@ -65,7 +65,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
   })
 
   return (
-    <div className="w-52 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-full">
+    <div className="w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-full">
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Clients</h2>
