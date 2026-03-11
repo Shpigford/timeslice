@@ -81,7 +81,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
             <input
               type="range"
               min="1"
-              max="8"
+              max="10"
               step="0.5"
               value={hours}
               onChange={e => setHours(e.target.value)}
@@ -90,7 +90,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
             <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
               <span>1h</span>
               <span>4h</span>
-              <span>8h</span>
+              <span>10h</span>
             </div>
           </div>
         </div>

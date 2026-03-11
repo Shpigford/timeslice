@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { getTextColorForBg } from '@/lib/utils'
 import { useTheme } from '@/hooks/useTheme'
 
-export function BlockCard({ block, maxHours = 8, onClick, onDelete, onDragStart, onResize }) {
+export function BlockCard({ block, maxHours = 10, onClick, onDelete, onDragStart, onResize }) {
   const heightPercent = Math.min((block.hours / maxHours) * 100, 100)
   const { dark } = useTheme()
   const textColor = getTextColorForBg(block.client_color, dark)
@@ -24,7 +24,7 @@ export function BlockCard({ block, maxHours = 8, onClick, onDelete, onDragStart,
       const delta = moveE.clientY - startY.current
       // ~30px per hour
       const hoursDelta = Math.round(delta / 30 * 2) / 2
-      const newHours = Math.max(1, Math.min(8, startHours.current + hoursDelta))
+      const newHours = Math.max(1, Math.min(10, startHours.current + hoursDelta))
       if (newHours !== block.hours && onResize) {
         onResize(block.id, newHours)
       }
