@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { CLIENT_COLORS } from '@/lib/utils'
+import { setDragPreview } from '@/lib/dragPreview'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
@@ -88,6 +89,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
                 onDragStart={(e) => {
                   e.dataTransfer.setData('application/timeslice-client', JSON.stringify(client))
                   e.dataTransfer.effectAllowed = 'copy'
+                  setDragPreview(e, client.name, client.color)
                 }}
               >
                 <GripVertical className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />

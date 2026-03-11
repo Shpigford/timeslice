@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { format, startOfWeek, addDays, isToday, isSameDay } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BlockCard } from './BlockCard'
+import { setDragPreview } from '@/lib/dragPreview'
 
 export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBlockUpdate, onBlockDelete }) {
   const [dragOverSlot, setDragOverSlot] = useState(null)
@@ -108,6 +109,7 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
                           onDragStart={(e) => {
                             e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
                             e.dataTransfer.effectAllowed = 'move'
+                            setDragPreview(e, `${block.client_name} · ${block.hours}h`, block.client_color)
                           }}
                           onResize={(id, newHours) => onBlockUpdate(id, { hours: newHours })}
                         />
