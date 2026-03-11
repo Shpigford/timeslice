@@ -20,6 +20,7 @@ export const clientsApi = {
   create: (data) => request('/clients', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/clients/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/clients/${id}`, { method: 'DELETE' }),
+  toggleArchive: (id) => request(`/clients/${id}/archive`, { method: 'PATCH' }),
 }
 
 // Blocks

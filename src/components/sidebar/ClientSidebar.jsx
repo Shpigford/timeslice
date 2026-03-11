@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Edit2, Trash2, GripVertical, Clock } from 'lucide-react'
+import { Plus, Edit2, Trash2, GripVertical, Clock, Archive, ArchiveRestore, ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,13 +9,17 @@ import { CLIENT_COLORS } from '@/lib/utils'
 import { setDragPreview } from '@/lib/dragPreview'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
+export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, blocks }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingClient, setEditingClient] = useState(null)
   const [name, setName] = useState('')
   const [color, setColor] = useState(CLIENT_COLORS[0].value)
   const [monthlyHours, setMonthlyHours] = useState('')
   const [deleteClientId, setDeleteClientId] = useState(null)
+  const [showArchived, setShowArchived] = useState(false)
+
+  const activeClients = clients.filter(c => !c.archived)
+  const archivedClients = clients.filter(c => c.archived)
 
   const openAdd = () => {
     setEditingClient(null)
@@ -77,7 +81,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
 
       <div className="flex-1 overflow-y-auto p-2">
         <AnimatePresence>
-          {clients.map(client => {
+          {activeClients.map(client => {
             const used = monthlyTotals[client.id] || 0
             const budget = client.monthly_hours || 0
 
@@ -123,14 +127,25 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
                     size="icon"
                     className="h-6 w-6"
                     onClick={(e) => { e.stopPropagation(); openEdit(client) }}
+                    title="Edit"
                   >
                     <Edit2 className="h-3 w-3" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-6 w-6"
+                    onClick={(e) => { e.stopPropagation(); onArchive(client.id) }}
+                    title="Archive"
+                  >
+                    <Archive className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-6 w-6 hover:text-destructive"
                     onClick={(e) => { e.stopPropagation(); setDeleteClientId(client.id) }}
+                    title="Delete"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -140,9 +155,48 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
           })}
         </AnimatePresence>
 
-        {clients.length === 0 && (
+        {activeClients.length === 0 && archivedClients.length === 0 && (
           <div className="text-center text-sm text-muted-foreground py-8 px-4">
             No clients yet. Click + to add your first client.
+          </div>
+        )}
+
+        {archivedClients.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-sidebar-border">
+            <button
+              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 w-full"
+              onClick={() => setShowArchived(!showArchived)}
+            >
+              {showArchived ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              Archived ({archivedClients.length})
+            </button>
+            {showArchived && (
+              <div className="mt-1">
+                {archivedClients.map(client => (
+                  <div
+                    key={client.id}
+                    className="group flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors mb-1 opacity-60"
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0 ring-1 ring-black/10"
+                      style={{ backgroundColor: client.color }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{client.name}</div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => onArchive(client.id)}
+                      title="Unarchive"
+                    >
+                      <ArchiveRestore className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

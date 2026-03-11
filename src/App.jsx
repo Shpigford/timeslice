@@ -77,6 +77,7 @@ export default function App() {
           onAdd={store.addClient}
           onUpdate={store.updateClient}
           onDelete={store.deleteClient}
+          onArchive={store.archiveClient}
         />
 
         <main className="flex-1 overflow-hidden flex flex-col">

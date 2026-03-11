@@ -44,5 +44,8 @@ export function initDb() {
     CREATE INDEX IF NOT EXISTS idx_blocks_client ON blocks(client_id);
   `)
 
+  // Migrations
+  try { db.prepare("ALTER TABLE clients ADD COLUMN archived INTEGER DEFAULT 0").run() } catch {}
+
   return db
 }

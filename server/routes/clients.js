@@ -52,6 +52,18 @@ router.put('/:id', (req, res) => {
   res.json(client)
 })
 
+// PATCH /api/clients/:id/archive
+router.patch('/:id/archive', (req, res) => {
+  const db = getDb()
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id)
+  if (!client) return res.status(404).json({ error: 'Client not found' })
+
+  const archived = client.archived ? 0 : 1
+  db.prepare(`UPDATE clients SET archived = ?, updated_at = datetime('now') WHERE id = ?`).run(archived, req.params.id)
+  const updated = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id)
+  res.json(updated)
+})
+
 // DELETE /api/clients/:id
 router.delete('/:id', (req, res) => {
   const db = getDb()

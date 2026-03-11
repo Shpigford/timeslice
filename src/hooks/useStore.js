@@ -62,6 +62,12 @@ export function useStore() {
     setBlocks(prev => prev.filter(b => b.client_id !== id))
   }, [])
 
+  const archiveClient = useCallback(async (id) => {
+    const client = await clientsApi.toggleArchive(id)
+    setClients(prev => prev.map(c => c.id === id ? client : c))
+    return client
+  }, [])
+
   // Block CRUD
   const addBlock = useCallback(async (clientId, date, slot, hours = 6) => {
     const block = await blocksApi.create({ client_id: clientId, date, slot, hours })
@@ -84,7 +90,7 @@ export function useStore() {
     clients, blocks, loading,
     currentDate, setCurrentDate,
     view, setView,
-    addClient, updateClient, deleteClient,
+    addClient, updateClient, deleteClient, archiveClient,
     addBlock, updateBlock, deleteBlock,
     fetchBlocks,
   }
