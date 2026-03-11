@@ -101,7 +101,12 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
   const { dark } = useTheme()
   const [dragOverDay, setDragOverDay] = useState(null)
 
-  const nextMonth = useMemo(() => addMonths(currentDate, 1), [currentDate])
+  const months = useMemo(() => [
+    currentDate,
+    addMonths(currentDate, 1),
+    addMonths(currentDate, 2),
+    addMonths(currentDate, 3),
+  ], [currentDate])
 
   const handleDragOver = (e, day) => {
     e.preventDefault()
@@ -134,47 +139,33 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
       animate={{ opacity: 1 }}
       className="flex-1 overflow-auto p-4"
     >
-      {/* Day headers */}
-      <div className="flex gap-6">
-        {[0, 1].map(i => (
-          <div key={i} className="flex-1 min-w-0">
-            <div className="h-[22px]" /> {/* spacer for month title */}
-            <div className="grid grid-cols-7">
-              {weekDays.map(d => (
-                <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
-                  {d}
-                </div>
-              ))}
+      {/* 2x2 grid of months */}
+      {[0, 2].map(row => (
+        <div key={row} className={`flex gap-6 ${row === 0 ? 'mb-6' : ''}`}>
+          {months.slice(row, row + 2).map((month, i) => (
+            <div key={i} className="flex-1 min-w-0">
+              <div className="grid grid-cols-7 mb-1">
+                {weekDays.map(d => (
+                  <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
+                    {d}
+                  </div>
+                ))}
+              </div>
+              <MonthGrid
+                month={month}
+                blocks={blocks}
+                dragOverDay={dragOverDay}
+                onDragOver={handleDragOver}
+                onDragLeave={() => setDragOverDay(null)}
+                onDrop={handleDrop}
+                onBlockClick={onBlockClick}
+                onBlockUpdate={onBlockUpdate}
+                dark={dark}
+              />
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Two month grids side by side */}
-      <div className="flex gap-6">
-        <MonthGrid
-          month={currentDate}
-          blocks={blocks}
-          dragOverDay={dragOverDay}
-          onDragOver={handleDragOver}
-          onDragLeave={() => setDragOverDay(null)}
-          onDrop={handleDrop}
-          onBlockClick={onBlockClick}
-          onBlockUpdate={onBlockUpdate}
-          dark={dark}
-        />
-        <MonthGrid
-          month={nextMonth}
-          blocks={blocks}
-          dragOverDay={dragOverDay}
-          onDragOver={handleDragOver}
-          onDragLeave={() => setDragOverDay(null)}
-          onDrop={handleDrop}
-          onBlockClick={onBlockClick}
-          onBlockUpdate={onBlockUpdate}
-          dark={dark}
-        />
-      </div>
+          ))}
+        </div>
+      ))}
     </motion.div>
   )
 }
