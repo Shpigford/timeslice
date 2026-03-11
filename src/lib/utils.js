@@ -31,3 +31,28 @@ export function getNextColor(existingColors) {
 export function getColorInfo(colorValue) {
   return CLIENT_COLORS.find(c => c.value === colorValue) || CLIENT_COLORS[0]
 }
+
+// Calculate relative luminance of a hex color
+function luminance(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const toLinear = (c) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+}
+
+// Get accessible text color for a given background
+export function getTextColorForBg(bgHex, isDark) {
+  const colorInfo = getColorInfo(bgHex)
+  if (isDark) {
+    // In dark mode, the block bg is the color at ~19% opacity on a near-black bg (#0a0a0a)
+    // Approximate the composited color and check contrast
+    const bg = 0.04 // luminance of #0a0a0a
+    const fg = luminance(bgHex)
+    const compositedLum = fg * 0.19 + bg * 0.81
+    // If composited bg is dark, use light text; otherwise use the dark variant
+    return compositedLum < 0.18 ? '#e5e7eb' : colorInfo?.dark || '#333'
+  }
+  // Light mode: bg is color at 19% on white — always light, use dark text
+  return colorInfo?.dark || '#333'
+}

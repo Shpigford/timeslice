@@ -4,8 +4,11 @@ import {
   addDays, isSameMonth, isToday, isSameDay
 } from 'date-fns'
 import { motion } from 'framer-motion'
+import { getTextColorForBg } from '@/lib/utils'
+import { useTheme } from '@/hooks/useTheme'
 
 export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onBlockDelete }) {
+  const { dark } = useTheme()
   const [dragOverDay, setDragOverDay] = useState(null)
 
   const calendarDays = useMemo(() => {
@@ -99,7 +102,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
                     className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition-opacity"
                     style={{
                       backgroundColor: block.client_color + '30',
-                      color: block.client_color,
+                      color: getTextColorForBg(block.client_color, dark),
                       borderLeft: `2px solid ${block.client_color}`,
                     }}
                     onClick={() => onBlockClick(block)}
