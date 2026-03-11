@@ -48,7 +48,7 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
           return (
             <div
               key={idx}
-              className={`border-r border-b border-border min-h-[90px] p-1 transition-colors ${
+              className={`border-r border-b border-border min-h-[68px] p-1 transition-colors ${
                 !inMonth ? 'bg-muted/30 text-muted-foreground/50' : 'hover:bg-muted/30'
               } ${today ? 'bg-today/20 dark:bg-today-dark/20' : ''} ${
                 isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''
