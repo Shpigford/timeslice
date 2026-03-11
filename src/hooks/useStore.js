@@ -8,7 +8,8 @@ export function useStore() {
   const [blocks, setBlocks] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setView] = useState('week') // week | month | multiweek
+  const [view, setViewState] = useState(() => localStorage.getItem('timeslice-view') || 'week')
+  const setView = (v) => { localStorage.setItem('timeslice-view', v); setViewState(v) }
 
   // Fetch clients
   const fetchClients = useCallback(async () => {
