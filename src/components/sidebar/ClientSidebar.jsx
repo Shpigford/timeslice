@@ -39,7 +39,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
         monthly_hours: parseFloat(monthlyHours) || 0,
       })
     } else {
-      await onAdd(name.trim(), parseFloat(monthlyHours) || 0)
+      await onAdd(name.trim(), parseFloat(monthlyHours) || 0, color)
     }
     setDialogOpen(false)
   }
@@ -76,20 +76,14 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
             const budget = client.monthly_hours || 0
 
             return (
-              <motion.div
+              <div
                 key={client.id}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                draggable
-                onDragStart={(e) => {
-                  // Use native drag for sidebar -> calendar
-                  if (e.nativeEvent?.dataTransfer) {
-                    e.nativeEvent.dataTransfer.setData('application/timeslice-client', JSON.stringify(client))
-                    e.nativeEvent.dataTransfer.effectAllowed = 'copy'
-                  }
-                }}
                 className="group flex items-center gap-2 p-2 rounded-lg hover:bg-accent cursor-grab active:cursor-grabbing transition-colors mb-1"
+                draggable="true"
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/timeslice-client', JSON.stringify(client))
+                  e.dataTransfer.effectAllowed = 'copy'
+                }}
               >
                 <GripVertical className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                 <div
@@ -123,7 +117,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
         </AnimatePresence>

@@ -36,9 +36,8 @@ export function useStore() {
   }, [currentDate])
 
   // Client CRUD
-  const addClient = useCallback(async (name, monthlyHours = 0) => {
-    const existingColors = clients.map(c => c.color)
-    const color = getNextColor(existingColors)
+  const addClient = useCallback(async (name, monthlyHours = 0, selectedColor) => {
+    const color = selectedColor || getNextColor(clients.map(c => c.color))
     const client = await clientsApi.create({ name, color, monthly_hours: monthlyHours })
     setClients(prev => [...prev, client])
     return client
