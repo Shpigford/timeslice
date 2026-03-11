@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
 // POST /api/blocks
 router.post('/', (req, res) => {
   const db = getDb()
-  const { client_id, date, slot, hours = 4 } = req.body
+  const { client_id, date, slot, hours = 6 } = req.body
   if (!client_id || !date || !slot) {
     return res.status(400).json({ error: 'client_id, date, and slot are required' })
   }

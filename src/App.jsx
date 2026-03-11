@@ -19,7 +19,7 @@ export default function App() {
   const [deleteBlockId, setDeleteBlockId] = useState(null)
 
   const handleDropClient = async (clientId, date, slot) => {
-    await store.addBlock(clientId, date, slot, 4)
+    await store.addBlock(clientId, date, slot, 6)
   }
 
   const handleBlockClick = (block) => {
