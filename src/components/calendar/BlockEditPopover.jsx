@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -6,10 +6,20 @@ import { Label } from '@/components/ui/label'
 import { Trash2 } from 'lucide-react'
 
 export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, clients }) {
-  const [hours, setHours] = useState(block?.hours?.toString() || '4')
-  const [slot, setSlot] = useState(block?.slot || 'AM')
-  const [date, setDate] = useState(block?.date || '')
-  const [clientId, setClientId] = useState(block?.client_id?.toString() || '')
+  const [hours, setHours] = useState('4')
+  const [slot, setSlot] = useState('AM')
+  const [date, setDate] = useState('')
+  const [clientId, setClientId] = useState('')
+
+  // Reset state when block changes
+  useEffect(() => {
+    if (block) {
+      setHours(block.hours?.toString() || '4')
+      setSlot(block.slot || 'AM')
+      setDate(block.date || '')
+      setClientId(block.client_id?.toString() || '')
+    }
+  }, [block])
 
   const handleSave = () => {
     onSave(block.id, {
@@ -64,25 +74,24 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
             </div>
           </div>
           <div className="grid gap-2">
-            <Label>Hours (max 4)</Label>
-            <Input
-              type="number"
-              min="0.5"
-              max="4"
-              step="0.5"
-              value={hours}
-              onChange={e => setHours(e.target.value)}
-            />
-            {/* Visual slider */}
+            <div className="flex items-center justify-between">
+              <Label>Hours</Label>
+              <span className="text-sm font-semibold tabular-nums">{hours}h</span>
+            </div>
             <input
               type="range"
-              min="0.5"
-              max="4"
+              min="1"
+              max="8"
               step="0.5"
               value={hours}
               onChange={e => setHours(e.target.value)}
               className="w-full accent-primary"
             />
+            <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
+              <span>1h</span>
+              <span>4h</span>
+              <span>8h</span>
+            </div>
           </div>
         </div>
         <DialogFooter className="flex !justify-between">
