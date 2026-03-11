@@ -102,13 +102,14 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
                         <BlockCard
                           key={block.id}
                           block={block}
-                          maxHours={4}
+                          maxHours={8}
                           onClick={() => onBlockClick(block)}
                           onDelete={() => onBlockDelete(block.id)}
                           onDragStart={(e) => {
                             e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
                             e.dataTransfer.effectAllowed = 'move'
                           }}
+                          onResize={(id, newHours) => onBlockUpdate(id, { hours: newHours })}
                         />
                       ))}
                     </AnimatePresence>
