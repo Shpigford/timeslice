@@ -8,7 +8,7 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
   const [dragOverDay, setDragOverDay] = useState(null)
   const WEEKS = 6
 
-  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate])
+  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 0 }), [currentDate])
 
   const weeks = useMemo(() => {
     return Array.from({ length: WEEKS }, (_, w) => {

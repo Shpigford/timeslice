@@ -7,7 +7,7 @@ import { setDragPreview } from '@/lib/dragPreview'
 export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBlockUpdate, onBlockDelete }) {
   const [dragOverSlot, setDragOverSlot] = useState(null)
 
-  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate])
+  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 0 }), [currentDate])
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart])
 
   const blocksByDaySlot = useMemo(() => {

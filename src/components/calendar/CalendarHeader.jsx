@@ -20,8 +20,8 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
 
   const getTitle = () => {
     if (view === 'week') {
-      const ws = startOfWeek(currentDate, { weekStartsOn: 1 })
-      const we = endOfWeek(currentDate, { weekStartsOn: 1 })
+      const ws = startOfWeek(currentDate, { weekStartsOn: 0 })
+      const we = endOfWeek(currentDate, { weekStartsOn: 0 })
       if (ws.getMonth() === we.getMonth()) {
         return format(ws, 'MMMM yyyy')
       }

@@ -14,8 +14,8 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentDate)
     const monthEnd = endOfMonth(currentDate)
-    const calStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+    const calStart = startOfWeek(monthStart, { weekStartsOn: 0 })
+    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
     const days = []
     let day = calStart
