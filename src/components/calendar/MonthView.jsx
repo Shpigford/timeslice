@@ -82,7 +82,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
             <div
               key={idx}
               className={`border-r border-b border-border min-h-[100px] p-1.5 transition-colors ${
-                !inMonth ? 'bg-muted/30 text-muted-foreground/50' : ''
+                !inMonth ? 'bg-muted/30 text-muted-foreground/50' : 'hover:bg-muted/30'
               } ${today ? 'bg-today/20 dark:bg-today-dark/20' : ''} ${
                 isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''
               }`}
@@ -99,7 +99,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
                 {dayBlocks.slice(0, 3).map(block => (
                   <div
                     key={block.id}
-                    className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition-opacity"
+                    className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 hover:shadow-sm transition-all"
                     style={{
                       backgroundColor: block.client_color + '30',
                       color: getTextColorForBg(block.client_color, dark),

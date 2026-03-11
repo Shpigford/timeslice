@@ -59,8 +59,8 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
             <div
               key={dayIdx}
               className={`border-r border-border last:border-r-0 flex flex-col ${
-                today ? 'bg-today/30 dark:bg-today-dark/30' : ''
-              }`}
+                today ? 'bg-today/30 dark:bg-today-dark/30' : 'hover:bg-muted/30'
+              } transition-colors`}
             >
               {/* Day header */}
               <div className={`px-3 py-2 border-b border-border text-center sticky top-0 z-10 backdrop-blur-sm ${
@@ -114,7 +114,7 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
                       ))}
                     </AnimatePresence>
                     {isDragOver && slotBlocks.length === 0 && (
-                      <div className="h-16 rounded-lg border-2 border-dashed border-primary/30 flex items-center justify-center text-xs text-muted-foreground">
+                      <div className="h-16 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 flex items-center justify-center text-xs text-muted-foreground animate-pulse">
                         Drop here
                       </div>
                     )}

@@ -66,8 +66,8 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
                 <div
                   key={di}
                   className={`border-r border-b border-border min-h-[72px] p-1 transition-colors ${
-                    today ? 'bg-today/20 dark:bg-today-dark/20' : ''
-                  } ${isDragOver ? 'bg-primary/5' : ''}`}
+                    today ? 'bg-today/20 dark:bg-today-dark/20' : 'hover:bg-muted/30'
+                  } ${isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''}`}
                   onDragOver={(e) => {
                     e.preventDefault()
                     setDragOverDay(dateStr)
