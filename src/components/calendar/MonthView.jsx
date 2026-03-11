@@ -57,10 +57,12 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
               onDragLeave={onDragLeave}
               onDrop={(e) => onDrop(e, day)}
             >
-              <div className={`text-xs font-medium mb-0.5 ${
-                today ? 'bg-primary text-primary-foreground w-5 h-5 rounded-full flex items-center justify-center text-[10px]' : ''
-              }`}>
-                {format(day, 'd')}
+              <div className="text-[10px] font-medium mb-0.5 h-5 flex items-center">
+                <span className={`${
+                  today ? 'bg-primary text-primary-foreground w-5 h-5 rounded-full flex items-center justify-center' : ''
+                }`}>
+                  {format(day, 'd')}
+                </span>
               </div>
               <div className="space-y-0.5">
                 {dayBlocks.slice(0, 3).map(block => (
