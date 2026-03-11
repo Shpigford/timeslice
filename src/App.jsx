@@ -85,10 +85,10 @@ export default function App() {
             {activeTab === 'calendar' ? (
               <motion.div
                 key={`calendar-${store.view}`}
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 className="flex-1 overflow-auto"
               >
                 {store.view === 'week' && (
@@ -122,10 +122,10 @@ export default function App() {
             ) : (
               <motion.div
                 key="summary"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                 className="flex-1 overflow-auto"
               >
                 <SummaryPanel
