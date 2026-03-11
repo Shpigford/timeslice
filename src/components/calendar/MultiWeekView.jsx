@@ -12,7 +12,7 @@ function getContrastColor(hex) {
   return luminance > 0.55 ? '#1a1a1a' : '#ffffff'
 }
 
-export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick }) {
+export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick, onBlockUpdate }) {
   const [dragOverDay, setDragOverDay] = useState(null)
   const WEEKS = 6
 
@@ -37,6 +37,12 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
   const handleDrop = (e, day) => {
     e.preventDefault()
     setDragOverDay(null)
+    const blockData = e.dataTransfer.getData('application/timeslice-block')
+    if (blockData) {
+      const block = JSON.parse(blockData)
+      onBlockUpdate(block.id, { date: format(day, 'yyyy-MM-dd') })
+      return
+    }
     const clientData = e.dataTransfer.getData('application/timeslice-client')
     if (clientData) {
       const client = JSON.parse(clientData)
@@ -97,7 +103,13 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick 
                     {dayBlocks.slice(0, 3).map(block => (
                       <div
                         key={block.id}
-                        className="rounded px-1 py-0.5 cursor-pointer hover:opacity-80 transition-opacity truncate"
+                        draggable
+                        onDragStart={(e) => {
+                          e.stopPropagation()
+                          e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
+                          e.dataTransfer.effectAllowed = 'move'
+                        }}
+                        className="rounded px-1 py-0.5 cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity truncate"
                         style={{
                           backgroundColor: block.client_color,
                           color: getContrastColor(block.client_color || '#888888')

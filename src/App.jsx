@@ -108,6 +108,7 @@ export default function App() {
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
                     onBlockDelete={confirmBlockDelete}
+                    onBlockUpdate={handleBlockUpdate}
                   />
                 )}
                 {store.view === 'multiweek' && (
@@ -116,6 +117,7 @@ export default function App() {
                     blocks={store.blocks}
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
+                    onBlockUpdate={handleBlockUpdate}
                   />
                 )}
               </motion.div>

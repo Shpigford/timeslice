@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { getTextColorForBg } from '@/lib/utils'
 import { useTheme } from '@/hooks/useTheme'
 
-export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onBlockDelete }) {
+export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onBlockDelete, onBlockUpdate }) {
   const { dark } = useTheme()
   const [dragOverDay, setDragOverDay] = useState(null)
 
@@ -37,7 +37,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
 
   const handleDragOver = (e, day) => {
     e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
+    e.dataTransfer.dropEffect = e.dataTransfer.types.includes('application/timeslice-block') ? 'move' : 'copy'
     const key = format(day, 'yyyy-MM-dd')
     if (dragOverDay !== key) setDragOverDay(key)
   }
@@ -45,6 +45,12 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
   const handleDrop = (e, day) => {
     e.preventDefault()
     setDragOverDay(null)
+    const blockData = e.dataTransfer.getData('application/timeslice-block')
+    if (blockData) {
+      const block = JSON.parse(blockData)
+      onBlockUpdate(block.id, { date: format(day, 'yyyy-MM-dd') })
+      return
+    }
     const clientData = e.dataTransfer.getData('application/timeslice-client')
     if (clientData) {
       const client = JSON.parse(clientData)
@@ -99,7 +105,13 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
                 {dayBlocks.slice(0, 3).map(block => (
                   <div
                     key={block.id}
-                    className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 hover:shadow-sm transition-all"
+                    draggable
+                    onDragStart={(e) => {
+                      e.stopPropagation()
+                      e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
+                      e.dataTransfer.effectAllowed = 'move'
+                    }}
+                    className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-grab active:cursor-grabbing hover:opacity-80 hover:shadow-sm transition-all"
                     style={{
                       backgroundColor: block.client_color + '30',
                       color: getTextColorForBg(block.client_color, dark),
