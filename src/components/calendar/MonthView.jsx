@@ -37,7 +37,7 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
       <h2 className="text-sm font-semibold text-center mb-2 text-foreground">
         {format(month, 'MMMM yyyy')}
       </h2>
-      <div className="grid grid-cols-7 border-t border-l border-border">
+      <div className="grid border-t border-l border-border" style={{ gridTemplateColumns: "0.4fr 1fr 1fr 1fr 1fr 1fr 0.4fr" }}>
         {calendarDays.map((day, idx) => {
           const dateStr = format(day, 'yyyy-MM-dd')
           const dayBlocks = blocksByDate[dateStr] || []
@@ -144,7 +144,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
         <div key={row} className={`flex gap-6 ${row === 0 ? 'mb-6' : ''}`}>
           {months.slice(row, row + 2).map((month, i) => (
             <div key={i} className="flex-1 min-w-0">
-              <div className="grid grid-cols-7 mb-1">
+              <div className="grid mb-1" style={{ gridTemplateColumns: "0.4fr 1fr 1fr 1fr 1fr 1fr 0.4fr" }}>
                 {weekDays.map(d => (
                   <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
                     {d}
