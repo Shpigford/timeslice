@@ -43,9 +43,15 @@ export function SummaryPanel({ clients, blocks, currentDate }) {
         <>
           <div className="h-64 mb-8">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} layout="vertical" margin={{ left: 80, right: 20, top: 5, bottom: 5 }}>
+              <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
                 <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={80} />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  width={100}
+                  tickFormatter={(name) => name.length > 14 ? name.slice(0, 12) + '…' : name}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'var(--color-popover)',
