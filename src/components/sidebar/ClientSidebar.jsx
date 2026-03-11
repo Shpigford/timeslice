@@ -93,10 +93,21 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, blocks }) {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{client.name}</div>
                   {budget > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>{used}/{budget}h</span>
-                    </div>
+                    <>
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                        <Clock className="h-2.5 w-2.5" />
+                        <span>{used} / {budget} hrs</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-1 mt-1">
+                        <div
+                          className="h-1 rounded-full transition-all"
+                          style={{
+                            width: `${Math.min((used / budget) * 100, 100)}%`,
+                            backgroundColor: client.color,
+                          }}
+                        />
+                      </div>
+                    </>
                   )}
                 </div>
                 <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
