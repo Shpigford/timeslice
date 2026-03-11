@@ -134,29 +134,47 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
       animate={{ opacity: 1 }}
       className="flex-1 overflow-auto p-4"
     >
-      {/* Two months stacked */}
-      {[currentDate, nextMonth].map((month, i) => (
-        <div key={i} className={i === 0 ? 'mb-6' : ''}>
-          <div className="grid grid-cols-7 mb-1">
-            {weekDays.map(d => (
-              <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
-                {d}
-              </div>
-            ))}
+      {/* Day headers */}
+      <div className="flex gap-6">
+        {[0, 1].map(i => (
+          <div key={i} className="flex-1 min-w-0">
+            <div className="h-[22px]" /> {/* spacer for month title */}
+            <div className="grid grid-cols-7">
+              {weekDays.map(d => (
+                <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
+                  {d}
+                </div>
+              ))}
+            </div>
           </div>
-          <MonthGrid
-            month={month}
-            blocks={blocks}
-            dragOverDay={dragOverDay}
-            onDragOver={handleDragOver}
-            onDragLeave={() => setDragOverDay(null)}
-            onDrop={handleDrop}
-            onBlockClick={onBlockClick}
-            onBlockUpdate={onBlockUpdate}
-            dark={dark}
-          />
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Two month grids side by side */}
+      <div className="flex gap-6">
+        <MonthGrid
+          month={currentDate}
+          blocks={blocks}
+          dragOverDay={dragOverDay}
+          onDragOver={handleDragOver}
+          onDragLeave={() => setDragOverDay(null)}
+          onDrop={handleDrop}
+          onBlockClick={onBlockClick}
+          onBlockUpdate={onBlockUpdate}
+          dark={dark}
+        />
+        <MonthGrid
+          month={nextMonth}
+          blocks={blocks}
+          dragOverDay={dragOverDay}
+          onDragOver={handleDragOver}
+          onDragLeave={() => setDragOverDay(null)}
+          onDrop={handleDrop}
+          onBlockClick={onBlockClick}
+          onBlockUpdate={onBlockUpdate}
+          dark={dark}
+        />
+      </div>
     </motion.div>
   )
 }
