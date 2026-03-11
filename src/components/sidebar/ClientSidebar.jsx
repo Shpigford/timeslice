@@ -88,7 +88,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
             return (
               <div
                 key={client.id}
-                className="group flex items-center gap-2 p-2 rounded-lg hover:bg-accent cursor-grab active:cursor-grabbing transition-colors mb-1"
+                className="group relative flex items-center gap-2 p-2 rounded-lg hover:bg-accent cursor-grab active:cursor-grabbing transition-colors mb-1"
                 draggable="true"
                 onDragStart={(e) => {
                   e.dataTransfer.setData('application/timeslice-client', JSON.stringify(client))
@@ -121,7 +121,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
                     </>
                   )}
                 </div>
-                <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-accent/90 backdrop-blur-sm rounded-md px-0.5 py-0.5">
                   <Button
                     variant="ghost"
                     size="icon"
