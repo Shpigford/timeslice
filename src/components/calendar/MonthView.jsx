@@ -74,11 +74,11 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
                       e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
                       e.dataTransfer.effectAllowed = 'move'
                     }}
-                    className="text-[10px] font-medium px-1 py-0.5 rounded truncate cursor-grab active:cursor-grabbing hover:opacity-80 hover:shadow-sm transition-all"
+                    className="text-[10px] font-medium px-1 py-0.5 rounded-sm truncate cursor-grab active:cursor-grabbing hover:opacity-80 hover:shadow-sm transition-all"
                     style={{
                       backgroundColor: block.client_color + '30',
                       color: getTextColorForBg(block.client_color, dark),
-                      borderLeft: `2px solid ${block.client_color}`,
+                      
                     }}
                     onClick={() => onBlockClick(block)}
                   >
