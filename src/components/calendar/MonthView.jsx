@@ -52,7 +52,7 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
     }
   }
 
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   return (
     <motion.div
