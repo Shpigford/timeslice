@@ -22,11 +22,13 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
   }, [block])
 
   const handleSave = () => {
+    const selectedClient = clients.find(c => String(c.id) === clientId)
+
     onSave(block.id, {
       hours: parseFloat(hours) || 6,
       slot,
       date,
-      client_id: parseInt(clientId),
+      client_id: selectedClient?.id ?? block.client_id,
     })
     onOpenChange(false)
   }
@@ -49,7 +51,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               {clients.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={String(c.id)}>{c.name}</option>
               ))}
             </select>
           </div>

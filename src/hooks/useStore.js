@@ -1,97 +1,129 @@
-import { useState, useEffect, useCallback } from 'react'
-import { clientsApi, blocksApi } from '@/lib/api'
+import { useState, useCallback } from 'react'
+import { load, save, genId } from '@/lib/storage'
 import { getNextColor } from '@/lib/utils'
-import { startOfMonth, endOfMonth, subMonths, addMonths, format } from 'date-fns'
 
 export function useStore() {
-  const [clients, setClients] = useState([])
-  const [blocks, setBlocks] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [clients, setClients] = useState(() => load('clients'))
+  const [blocks, setBlocks] = useState(() => load('blocks'))
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setViewState] = useState(() => localStorage.getItem('timeslice-view') || 'week')
+  const [view, setViewState] = useState(() => localStorage.getItem('timeslice-view') || 'month')
   const setView = (v) => { localStorage.setItem('timeslice-view', v); setViewState(v) }
 
-  // Fetch clients
-  const fetchClients = useCallback(async () => {
-    const data = await clientsApi.list()
-    setClients(data)
-    return data
-  }, [])
-
-  // Fetch blocks for a wide range (3 months around current)
-  const fetchBlocks = useCallback(async () => {
-    const start = format(startOfMonth(subMonths(currentDate, 1)), 'yyyy-MM-dd')
-    const end = format(endOfMonth(addMonths(currentDate, 2)), 'yyyy-MM-dd')
-    const data = await blocksApi.list(start, end)
-    setBlocks(data)
-  }, [currentDate])
-
-  // Initial load
-  useEffect(() => {
-    Promise.all([fetchClients(), fetchBlocks()]).then(() => setLoading(false))
-  }, [])
-
-  // Refetch blocks when date range changes significantly
-  useEffect(() => {
-    if (!loading) fetchBlocks()
-  }, [currentDate])
-
   // Client CRUD
-  const addClient = useCallback(async (name, monthlyHours = 0, selectedColor) => {
+  const addClient = useCallback((name, monthlyHours = 0, selectedColor) => {
     const color = selectedColor || getNextColor(clients.map(c => c.color))
-    const client = await clientsApi.create({ name, color, monthly_hours: monthlyHours })
-    setClients(prev => [...prev, client])
+    const now = new Date().toISOString()
+    const client = { id: genId(), name, color, monthly_hours: monthlyHours, archived: 0, created_at: now, updated_at: now }
+    const updated = [...clients, client]
+    save('clients', updated)
+    setClients(updated)
     return client
   }, [clients])
 
-  const updateClient = useCallback(async (id, data) => {
-    const client = await clientsApi.update(id, data)
-    setClients(prev => prev.map(c => c.id === id ? client : c))
-    // Update block colors in local state
-    if (data.color) {
-      setBlocks(prev => prev.map(b =>
-        b.client_id === id ? { ...b, client_color: data.color, client_name: data.name || b.client_name } : b
-      ))
+  const updateClient = useCallback((id, data) => {
+    const client = clients.find(c => c.id === id)
+    if (!client) return
+    const updated = { ...client, ...data, updated_at: new Date().toISOString() }
+    const newClients = clients.map(c => c.id === id ? updated : c)
+    save('clients', newClients)
+    setClients(newClients)
+
+    // Update denormalized client data on blocks
+    if (data.color || data.name) {
+      const newBlocks = blocks.map(b =>
+        b.client_id === id ? { ...b, client_color: data.color || b.client_color, client_name: data.name || b.client_name } : b
+      )
+      save('blocks', newBlocks)
+      setBlocks(newBlocks)
     }
-    return client
-  }, [])
+    return updated
+  }, [clients, blocks])
 
-  const deleteClient = useCallback(async (id) => {
-    await clientsApi.delete(id)
-    setClients(prev => prev.filter(c => c.id !== id))
-    setBlocks(prev => prev.filter(b => b.client_id !== id))
-  }, [])
+  const deleteClient = useCallback((id) => {
+    const newClients = clients.filter(c => c.id !== id)
+    const newBlocks = blocks.filter(b => b.client_id !== id)
+    save('clients', newClients)
+    save('blocks', newBlocks)
+    setClients(newClients)
+    setBlocks(newBlocks)
+  }, [clients, blocks])
 
-  const archiveClient = useCallback(async (id) => {
-    const client = await clientsApi.toggleArchive(id)
-    setClients(prev => prev.map(c => c.id === id ? client : c))
-    return client
-  }, [])
+  const archiveClient = useCallback((id) => {
+    const client = clients.find(c => c.id === id)
+    if (!client) return
+    const updated = { ...client, archived: client.archived ? 0 : 1, updated_at: new Date().toISOString() }
+    const newClients = clients.map(c => c.id === id ? updated : c)
+    save('clients', newClients)
+    setClients(newClients)
+    return updated
+  }, [clients])
 
   // Block CRUD
-  const addBlock = useCallback(async (clientId, date, slot, hours = 6) => {
-    const block = await blocksApi.create({ client_id: clientId, date, slot, hours })
-    setBlocks(prev => [...prev, block])
+  const addBlock = useCallback((clientId, date, slot, hours = 6) => {
+    const client = clients.find(c => c.id === clientId)
+    const now = new Date().toISOString()
+    const block = {
+      id: genId(), client_id: clientId, date, slot, hours,
+      client_name: client?.name || '', client_color: client?.color || '',
+      created_at: now, updated_at: now,
+    }
+    const updated = [...blocks, block]
+    save('blocks', updated)
+    setBlocks(updated)
     return block
-  }, [])
+  }, [clients, blocks])
 
-  const updateBlock = useCallback(async (id, data) => {
-    const block = await blocksApi.update(id, data)
-    setBlocks(prev => prev.map(b => b.id === id ? block : b))
-    return block
-  }, [])
+  const updateBlock = useCallback((id, data) => {
+    const block = blocks.find(b => b.id === id)
+    if (!block) return
+    const merged = { ...block, ...data, updated_at: new Date().toISOString() }
+    // Re-resolve client fields if client_id changed
+    if (data.client_id && data.client_id !== block.client_id) {
+      const client = clients.find(c => c.id === data.client_id)
+      merged.client_name = client?.name || ''
+      merged.client_color = client?.color || ''
+    }
+    const updated = blocks.map(b => b.id === id ? merged : b)
+    save('blocks', updated)
+    setBlocks(updated)
+    return merged
+  }, [blocks, clients])
 
-  const deleteBlock = useCallback(async (id) => {
-    await blocksApi.delete(id)
-    setBlocks(prev => prev.filter(b => b.id !== id))
+  const deleteBlock = useCallback((id) => {
+    const updated = blocks.filter(b => b.id !== id)
+    save('blocks', updated)
+    setBlocks(updated)
+  }, [blocks])
+
+  // Export/Import
+  const exportData = useCallback(() => {
+    const data = JSON.stringify({ clients, blocks }, null, 2)
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `timeslice-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [clients, blocks])
+
+  const importData = useCallback((jsonString) => {
+    const data = JSON.parse(jsonString)
+    if (!Array.isArray(data.clients) || !Array.isArray(data.blocks)) {
+      throw new Error('Invalid backup file')
+    }
+    save('clients', data.clients)
+    save('blocks', data.blocks)
+    setClients(data.clients)
+    setBlocks(data.blocks)
   }, [])
 
   return {
-    clients, blocks, loading,
+    clients, blocks, loading: false,
     currentDate, setCurrentDate,
     view, setView,
     addClient, updateClient, deleteClient, archiveClient,
     addBlock, updateBlock, deleteBlock,
-    fetchBlocks,
+    exportData, importData,
   }
 }

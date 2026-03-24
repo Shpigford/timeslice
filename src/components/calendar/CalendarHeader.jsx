@@ -1,9 +1,12 @@
+import { useRef } from 'react'
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns'
-import { ChevronLeft, ChevronRight, Calendar, Sun, Moon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Sun, Moon, Download, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dark, onToggleTheme, activeTab, onTabChange }) {
+export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dark, onToggleTheme, activeTab, onTabChange, onExport, onImport }) {
+  const fileInputRef = useRef(null)
+
   const navigatePrev = () => {
     if (view === 'week') setCurrentDate(d => subWeeks(d, 1))
     else if (view === 'month') setCurrentDate(d => subMonths(d, 4))
@@ -30,6 +33,21 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
       return `${format(currentDate, 'MMM')} – ${format(lastMonth, 'MMM yyyy')}`
     }
     return `${format(currentDate, 'MMM yyyy')} – ${format(lastMonth, 'MMM yyyy')}`
+  }
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        onImport(ev.target.result)
+      } catch {
+        alert('Invalid backup file')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
   }
 
   return (
@@ -70,6 +88,16 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
             <TabsTrigger value="month">Month</TabsTrigger>
           </TabsList>
         </Tabs>
+
+        <div className="h-5 w-px bg-border" />
+
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onExport} title="Export data">
+          <Download className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => fileInputRef.current?.click()} title="Import data">
+          <Upload className="h-4 w-4" />
+        </Button>
+        <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileChange} />
 
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleTheme}>
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

@@ -68,6 +68,8 @@ export default function App() {
         onToggleTheme={theme.toggle}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onExport={store.exportData}
+        onImport={store.importData}
       />
 
       <div className="flex flex-1 overflow-hidden">
