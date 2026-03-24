@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Edit2, Trash2, GripVertical, Clock, Archive, ArchiveRestore, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, Edit2, Trash2, GripVertical, Clock, Archive, ArchiveRestore, ChevronDown, ChevronRight, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -199,6 +199,18 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
             )}
           </div>
         )}
+      </div>
+
+      <div className="px-4 py-3 border-t border-sidebar-border">
+        <a
+          href="https://github.com/Shpigford/timeslice"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Github className="h-3.5 w-3.5" />
+          Open source on GitHub
+        </a>
       </div>
 
       {/* Add/Edit Dialog */}

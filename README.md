@@ -1,16 +1,54 @@
-# React + Vite
+# Timeslice
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A visual time-blocking calendar for freelancers and consultants. Drag clients onto your calendar to plan your week — no account required, everything stays in your browser.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Drag-and-drop scheduling** — drag clients onto AM/PM slots to create time blocks
+- **Week and month views** — toggle between detailed week view and month overview
+- **Client management** — color-coded clients with monthly hour budgets
+- **Archive clients** — hide inactive clients without losing their history
+- **Summary dashboard** — see hours logged per client with monthly breakdowns
+- **Export/import** — download your data as JSON, restore it anytime
+- **Dark mode** — automatic or manual theme switching
+- **No account needed** — all data stored in your browser's localStorage
 
-## React Compiler
+## Running locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Opens at `http://localhost:5190`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Your data
+
+Everything is stored in your browser's localStorage. No server, no database, no tracking. Your data never leaves your machine.
+
+**Back up your data** — click the download icon in the header to export a JSON backup. Click the upload icon to restore from a backup.
+
+## Deploying
+
+Timeslice is a static site. Deploy it anywhere that serves HTML.
+
+### Cloudflare Workers
+
+The repo includes a `wrangler.toml` configured for Cloudflare Workers with static assets. Connect your repo in the Cloudflare dashboard and it deploys automatically.
+
+### Other hosts
+
+Run `npm run build` and serve the `dist/` directory. Works with Vercel, Netlify, GitHub Pages, or any static host.
+
+## Tech stack
+
+- [React](https://react.dev) — UI
+- [Vite](https://vite.dev) — build tool
+- [Tailwind CSS](https://tailwindcss.com) — styling
+- [Radix UI](https://radix-ui.com) — accessible component primitives
+- [Framer Motion](https://motion.dev) — animations
+- [Recharts](https://recharts.org) — summary charts
+
+## License
+
+MIT
