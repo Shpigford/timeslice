@@ -8,6 +8,7 @@ import { MonthView } from '@/components/calendar/MonthView'
 import { BlockEditDialog } from '@/components/calendar/BlockEditPopover'
 import { SummaryPanel } from '@/components/summary/SummaryPanel'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { DemoBanner } from '@/components/DemoBanner'
 import { AnimatePresence, motion } from 'framer-motion'
 
 export default function App() {
@@ -71,6 +72,8 @@ export default function App() {
         onExport={store.exportData}
         onImport={store.importData}
       />
+
+      {store.isDemo && <DemoBanner onClear={store.clearDemoData} />}
 
       <div className="flex flex-1 overflow-hidden">
         <ClientSidebar
