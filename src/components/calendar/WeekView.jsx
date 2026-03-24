@@ -103,7 +103,6 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
                         <BlockCard
                           key={block.id}
                           block={block}
-                          maxHours={10}
                           onClick={() => onBlockClick(block)}
                           onDelete={() => onBlockDelete(block.id)}
                           onDragStart={(e) => {

@@ -4,8 +4,7 @@ import { X } from 'lucide-react'
 import { getTextColorForBg } from '@/lib/utils'
 import { useTheme } from '@/hooks/useTheme'
 
-export function BlockCard({ block, maxHours = 10, onClick, onDelete, onDragStart, onResize }) {
-  const heightPercent = Math.min((block.hours / maxHours) * 100, 100)
+export function BlockCard({ block, onClick, onDelete, onDragStart, onResize }) {
   const { dark } = useTheme()
   const textColor = getTextColorForBg(block.client_color, dark)
   const resizing = useRef(false)
@@ -54,9 +53,9 @@ export function BlockCard({ block, maxHours = 10, onClick, onDelete, onDragStart
         onClick={onClick}
         className="group relative rounded-lg mb-1 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 active:shadow-lg select-none"
         style={{
-          backgroundColor: block.client_color + '30',
-          borderLeft: `3px solid ${block.client_color}`,
-          minHeight: `${Math.max(heightPercent * 0.8, 36)}px`,
+          backgroundColor: block.client_color + '20',
+          border: `1px solid ${block.client_color}30`,
+          minHeight: `${Math.max(block.hours * 24, 28)}px`,
         }}
       >
         <div className="p-1.5 px-2">
