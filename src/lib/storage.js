@@ -3,6 +3,10 @@ const KEYS = {
   blocks: 'timeslice-blocks',
 }
 
+export function hasStoredValue(key) {
+  return localStorage.getItem(KEYS[key]) !== null
+}
+
 export function load(key) {
   try {
     return JSON.parse(localStorage.getItem(KEYS[key])) || []

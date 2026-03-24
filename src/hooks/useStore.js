@@ -1,10 +1,29 @@
 import { useState, useCallback } from 'react'
-import { load, save, genId } from '@/lib/storage'
+import { load, save, genId, hasStoredValue } from '@/lib/storage'
 import { getNextColor } from '@/lib/utils'
+import { generateDemoData } from '@/lib/demoData'
+
+function initWithDemo() {
+  const hasSavedData = hasStoredValue('clients') || hasStoredValue('blocks')
+  if (hasSavedData || localStorage.getItem('timeslice-demo-cleared')) {
+    return {
+      clients: load('clients'),
+      blocks: load('blocks'),
+      isDemo: !!localStorage.getItem('timeslice-demo'),
+    }
+  }
+  const demo = generateDemoData()
+  save('clients', demo.clients)
+  save('blocks', demo.blocks)
+  localStorage.setItem('timeslice-demo', '1')
+  return { clients: demo.clients, blocks: demo.blocks, isDemo: true }
+}
 
 export function useStore() {
-  const [clients, setClients] = useState(() => load('clients'))
-  const [blocks, setBlocks] = useState(() => load('blocks'))
+  const [init] = useState(initWithDemo)
+  const [clients, setClients] = useState(init.clients)
+  const [blocks, setBlocks] = useState(init.blocks)
+  const [isDemo, setIsDemo] = useState(init.isDemo)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setViewState] = useState(() => localStorage.getItem('timeslice-view') || 'month')
   const setView = (v) => { localStorage.setItem('timeslice-view', v); setViewState(v) }
@@ -114,8 +133,20 @@ export function useStore() {
     }
     save('clients', data.clients)
     save('blocks', data.blocks)
+    localStorage.removeItem('timeslice-demo')
+    setIsDemo(false)
     setClients(data.clients)
     setBlocks(data.blocks)
+  }, [])
+
+  const clearDemoData = useCallback(() => {
+    save('clients', [])
+    save('blocks', [])
+    localStorage.removeItem('timeslice-demo')
+    localStorage.setItem('timeslice-demo-cleared', '1')
+    setClients([])
+    setBlocks([])
+    setIsDemo(false)
   }, [])
 
   return {
@@ -125,5 +156,6 @@ export function useStore() {
     addClient, updateClient, deleteClient, archiveClient,
     addBlock, updateBlock, deleteBlock,
     exportData, importData,
+    isDemo, clearDemoData,
   }
 }
