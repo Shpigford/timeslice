@@ -2,6 +2,8 @@
 
 A visual time-blocking calendar for freelancers and consultants. Drag clients onto your calendar to plan your week — no account required, everything stays in your browser.
 
+Made by [@Shpigford](https://x.com/Shpigford)
+
 ## Features
 
 - **Drag-and-drop scheduling** — drag clients onto AM/PM slots to create time blocks
