@@ -1,11 +1,28 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { format, startOfWeek, addDays, isToday, isSameDay } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BlockCard } from './BlockCard'
+import { BlockedCard } from './BlockedCard'
 import { setDragPreview } from '@/lib/dragPreview'
 
-export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBlockUpdate, onBlockDelete }) {
+export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBlockUpdate, onBlockDelete, onAddBlockedTime }) {
   const [dragOverSlot, setDragOverSlot] = useState(null)
+  const [contextMenu, setContextMenu] = useState(null)
+
+  const closeMenu = useCallback(() => setContextMenu(null), [])
+
+  useEffect(() => {
+    if (!contextMenu) return
+    const handleClick = () => closeMenu()
+    const handleKey = (e) => { if (e.key === 'Escape') closeMenu() }
+    document.addEventListener('click', handleClick)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('click', handleClick)
+      document.removeEventListener('keydown', handleKey)
+    }
+  }, [contextMenu, closeMenu])
 
   const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 0 }), [currentDate])
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart])
@@ -22,9 +39,21 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
 
   const handleDragOver = (e, date, slot) => {
     e.preventDefault()
+    const dateStr = format(date, 'yyyy-MM-dd')
+    const key = `${dateStr}-${slot}`
+    const slotBlocks = blocksByDaySlot[key] || []
+    if (slotBlocks.some(b => b.type === 'blocked')) {
+      setDragOverSlot(null)
+      e.dataTransfer.dropEffect = 'none'
+      return
+    }
     e.dataTransfer.dropEffect = 'copy'
-    const key = `${format(date, 'yyyy-MM-dd')}-${slot}`
     if (dragOverSlot !== key) setDragOverSlot(key)
+  }
+
+  const handleContextMenu = (e, date, slot) => {
+    e.preventDefault()
+    setContextMenu({ x: e.clientX, y: e.clientY, date: format(date, 'yyyy-MM-dd'), slot })
   }
 
   const handleDragLeave = () => setDragOverSlot(null)
@@ -32,6 +61,9 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
   const handleDrop = (e, date, slot) => {
     e.preventDefault()
     setDragOverSlot(null)
+    const key = `${format(date, 'yyyy-MM-dd')}-${slot}`
+    const slotBlocks = blocksByDaySlot[key] || []
+    if (slotBlocks.some(b => b.type === 'blocked')) return
 
     const clientData = e.dataTransfer.getData('application/timeslice-client')
     const blockData = e.dataTransfer.getData('application/timeslice-block')
@@ -94,24 +126,32 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
                     onDragOver={(e) => handleDragOver(e, day, slot)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, day, slot)}
+                    onContextMenu={(e) => handleContextMenu(e, day, slot)}
                   >
                     <div className="text-[10px] font-medium text-muted-foreground/60 uppercase mb-1 px-1">
                       {slot === 'AM' ? 'Morning' : 'Afternoon'}
                     </div>
                     <AnimatePresence mode="popLayout">
                       {slotBlocks.map(block => (
-                        <BlockCard
-                          key={block.id}
-                          block={block}
-                          onClick={() => onBlockClick(block)}
-                          onDelete={() => onBlockDelete(block.id)}
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
-                            e.dataTransfer.effectAllowed = 'move'
-                            setDragPreview(e, `${block.client_name} · ${block.hours}h`, block.client_color)
-                          }}
-                          onResize={(id, newHours) => onBlockUpdate(id, { hours: newHours })}
-                        />
+                        block.type === 'blocked' ? (
+                          <BlockedCard
+                            key={block.id}
+                            onDelete={() => onBlockDelete(block.id)}
+                          />
+                        ) : (
+                          <BlockCard
+                            key={block.id}
+                            block={block}
+                            onClick={() => onBlockClick(block)}
+                            onDelete={() => onBlockDelete(block.id)}
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('application/timeslice-block', JSON.stringify(block))
+                              e.dataTransfer.effectAllowed = 'move'
+                              setDragPreview(e, `${block.client_name} · ${block.hours}h`, block.client_color)
+                            }}
+                            onResize={(id, newHours) => onBlockUpdate(id, { hours: newHours })}
+                          />
+                        )
                       ))}
                     </AnimatePresence>
                     {isDragOver && slotBlocks.length === 0 && (
@@ -126,6 +166,32 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
           )
         })}
       </div>
+
+      {contextMenu && createPortal(
+        <div
+          className="fixed z-50 bg-popover border border-border rounded-md shadow-lg py-0.5"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {[
+            { label: 'Block Morning', scope: 'morning' },
+            { label: 'Block Afternoon', scope: 'afternoon' },
+            { label: 'Block Full Day', scope: 'full-day' },
+          ].map(({ label, scope }) => (
+            <button
+              key={scope}
+              className="block w-full text-left px-2.5 py-1 text-xs hover:bg-muted transition-colors whitespace-nowrap"
+              onClick={() => {
+                onAddBlockedTime(contextMenu.date, scope)
+                closeMenu()
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
     </motion.div>
   )
 }

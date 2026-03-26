@@ -23,7 +23,12 @@ export default function App() {
   }
 
   const handleBlockClick = (block) => {
+    if (block.type === 'blocked') return
     setEditingBlock(block)
+  }
+
+  const handleAddBlockedTime = (date, scope) => {
+    store.addBlockedTime(date, scope)
   }
 
   const handleBlockSave = async (id, data) => {
@@ -104,6 +109,7 @@ export default function App() {
                     onBlockClick={handleBlockClick}
                     onBlockUpdate={handleBlockUpdate}
                     onBlockDelete={confirmBlockDelete}
+                    onAddBlockedTime={handleAddBlockedTime}
                   />
                 )}
                 {store.view === 'month' && (
@@ -114,6 +120,7 @@ export default function App() {
                     onBlockClick={handleBlockClick}
                     onBlockDelete={confirmBlockDelete}
                     onBlockUpdate={handleBlockUpdate}
+                    onAddBlockedTime={handleAddBlockedTime}
                   />
                 )}
 

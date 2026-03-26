@@ -10,7 +10,7 @@ export function SummaryPanel({ clients, blocks, currentDate }) {
   const data = useMemo(() => {
     const startStr = format(monthStart, 'yyyy-MM-dd')
     const endStr = format(monthEnd, 'yyyy-MM-dd')
-    const monthBlocks = blocks.filter(b => b.date >= startStr && b.date <= endStr)
+    const monthBlocks = blocks.filter(b => b.date >= startStr && b.date <= endStr && b.type !== 'blocked')
 
     const totals = {}
     monthBlocks.forEach(b => {
