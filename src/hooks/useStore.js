@@ -3,6 +3,15 @@ import { load, save, genId, hasStoredValue } from '@/lib/storage'
 import { getNextColor } from '@/lib/utils'
 import { generateDemoData } from '@/lib/demoData'
 
+function hasBlockedSlot(blocks, date, slot, excludeId = null) {
+  return blocks.some(block =>
+    block.type === 'blocked' &&
+    block.date === date &&
+    block.slot === slot &&
+    block.id !== excludeId
+  )
+}
+
 function initWithDemo() {
   const hasSavedData = hasStoredValue('clients') || hasStoredValue('blocks')
   if (hasSavedData || localStorage.getItem('timeslice-demo-cleared')) {
@@ -79,6 +88,7 @@ export function useStore() {
 
   // Block CRUD
   const addBlock = useCallback((clientId, date, slot, hours = 6) => {
+    if (hasBlockedSlot(blocks, date, slot)) return null
     const client = clients.find(c => c.id === clientId)
     const now = new Date().toISOString()
     const block = {
@@ -95,6 +105,9 @@ export function useStore() {
   const updateBlock = useCallback((id, data) => {
     const block = blocks.find(b => b.id === id)
     if (!block) return
+    const nextDate = data.date ?? block.date
+    const nextSlot = data.slot ?? block.slot
+    if (hasBlockedSlot(blocks, nextDate, nextSlot, id)) return block
     const merged = { ...block, ...data, updated_at: new Date().toISOString() }
     // Re-resolve client fields if client_id changed
     if (data.client_id && data.client_id !== block.client_id) {
@@ -112,6 +125,25 @@ export function useStore() {
     const updated = blocks.filter(b => b.id !== id)
     save('blocks', updated)
     setBlocks(updated)
+  }, [blocks])
+
+  const addBlockedTime = useCallback((date, scope) => {
+    const now = new Date().toISOString()
+    const make = (slot) => ({
+      id: genId(), type: 'blocked', client_id: null, client_name: 'Blocked', client_color: null,
+      date, slot, hours: 0, created_at: now, updated_at: now,
+    })
+    const slots = scope === 'full-day'
+      ? ['AM', 'PM']
+      : [scope === 'morning' ? 'AM' : 'PM']
+    const newBlocks = slots
+      .filter(slot => !hasBlockedSlot(blocks, date, slot))
+      .map(make)
+    if (newBlocks.length === 0) return []
+    const updated = [...blocks, ...newBlocks]
+    save('blocks', updated)
+    setBlocks(updated)
+    return newBlocks
   }, [blocks])
 
   // Export/Import
@@ -154,7 +186,7 @@ export function useStore() {
     currentDate, setCurrentDate,
     view, setView,
     addClient, updateClient, deleteClient, archiveClient,
-    addBlock, updateBlock, deleteBlock,
+    addBlock, updateBlock, deleteBlock, addBlockedTime,
     exportData, importData,
     isDemo, clearDemoData,
   }
