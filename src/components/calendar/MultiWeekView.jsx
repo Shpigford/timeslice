@@ -84,6 +84,8 @@ export function MultiWeekView({ currentDate, blocks, onDropClient, onBlockClick,
                   } ${isDragOver ? 'bg-primary/5 ring-2 ring-primary/20 ring-inset' : ''}`}
                   onDragOver={(e) => {
                     e.preventDefault()
+                    const isBlockDrag = e.dataTransfer.types.includes('application/timeslice-block')
+                    e.dataTransfer.dropEffect = isBlockDrag ? 'move' : 'copy'
                     setDragOverDay(dateStr)
                   }}
                   onDragLeave={() => setDragOverDay(null)}

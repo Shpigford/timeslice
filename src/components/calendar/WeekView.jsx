@@ -47,7 +47,8 @@ export function WeekView({ currentDate, blocks, onDropClient, onBlockClick, onBl
       e.dataTransfer.dropEffect = 'none'
       return
     }
-    e.dataTransfer.dropEffect = 'copy'
+    const isBlockDrag = e.dataTransfer.types.includes('application/timeslice-block')
+    e.dataTransfer.dropEffect = isBlockDrag ? 'move' : 'copy'
     if (dragOverSlot !== key) setDragOverSlot(key)
   }
 

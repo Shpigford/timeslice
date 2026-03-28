@@ -176,14 +176,16 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
   const handleDragOver = (e, day) => {
     e.preventDefault()
     const key = format(day, 'yyyy-MM-dd')
-    const blockData = e.dataTransfer.getData('application/timeslice-block')
-    const slot = getDropSlot(key, blockData ? JSON.parse(blockData) : null)
+    const isBlockDrag = e.dataTransfer.types.includes('application/timeslice-block')
+    const blockData = isBlockDrag ? e.dataTransfer.getData('application/timeslice-block') : null
+    const draggedBlock = blockData ? JSON.parse(blockData) : null
+    const slot = getDropSlot(key, draggedBlock)
     if (!slot) {
       setDragOverDay(null)
       e.dataTransfer.dropEffect = 'none'
       return
     }
-    e.dataTransfer.dropEffect = blockData ? 'move' : 'copy'
+    e.dataTransfer.dropEffect = isBlockDrag ? 'move' : 'copy'
     if (dragOverDay !== key) setDragOverDay(key)
   }
 
