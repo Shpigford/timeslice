@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { isSameMonth, isSameWeek } from 'date-fns'
 import { useStore } from '@/hooks/useStore'
 import { useTheme } from '@/hooks/useTheme'
 import { ClientSidebar } from '@/components/sidebar/ClientSidebar'
@@ -14,8 +15,34 @@ import { AnimatePresence, motion } from 'framer-motion'
 export default function App() {
   const store = useStore()
   const theme = useTheme()
+  const { currentDate, setCurrentDate, view } = store
   const [editingBlock, setEditingBlock] = useState(null)
   const [activeTab, setActiveTab] = useState('calendar')
+
+  // Refresh today-based UI at midnight without yanking users off non-today views.
+  const [, setMidnightTick] = useState(0)
+  useEffect(() => {
+    const scheduleNext = () => {
+      const now = new Date()
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      const ms = midnight - now + 100 // 100ms buffer past midnight
+      const viewFollowsToday = activeTab === 'summary'
+        ? isSameMonth(currentDate, now)
+        : view === 'week'
+          ? isSameWeek(currentDate, now, { weekStartsOn: 0 })
+          : isSameMonth(currentDate, now)
+      return setTimeout(() => {
+        if (viewFollowsToday) {
+          setCurrentDate(new Date())
+        } else {
+          setMidnightTick(t => t + 1)
+        }
+        timerId = scheduleNext()
+      }, ms)
+    }
+    let timerId = scheduleNext()
+    return () => clearTimeout(timerId)
+  }, [activeTab, currentDate, setCurrentDate, view])
   const [deleteBlockId, setDeleteBlockId] = useState(null)
 
   const handleDropClient = async (clientId, date, slot) => {
@@ -66,9 +93,9 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <CalendarHeader
-        currentDate={store.currentDate}
-        setCurrentDate={store.setCurrentDate}
-        view={store.view}
+        currentDate={currentDate}
+        setCurrentDate={setCurrentDate}
+        view={view}
         setView={store.setView}
         dark={theme.dark}
         onToggleTheme={theme.toggle}
@@ -94,16 +121,16 @@ export default function App() {
           <AnimatePresence mode="wait">
             {activeTab === 'calendar' ? (
               <motion.div
-                key={`calendar-${store.view}`}
+                key={`calendar-${view}`}
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 className="flex-1 overflow-auto"
               >
-                {store.view === 'week' && (
+                {view === 'week' && (
                   <WeekView
-                    currentDate={store.currentDate}
+                    currentDate={currentDate}
                     blocks={store.blocks}
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
@@ -112,9 +139,9 @@ export default function App() {
                     onAddBlockedTime={handleAddBlockedTime}
                   />
                 )}
-                {store.view === 'month' && (
+                {view === 'month' && (
                   <MonthView
-                    currentDate={store.currentDate}
+                    currentDate={currentDate}
                     blocks={store.blocks}
                     onDropClient={handleDropClient}
                     onBlockClick={handleBlockClick}
@@ -137,7 +164,7 @@ export default function App() {
                 <SummaryPanel
                   clients={store.clients}
                   blocks={store.blocks}
-                  currentDate={store.currentDate}
+                  currentDate={currentDate}
                 />
               </motion.div>
             )}
