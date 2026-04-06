@@ -64,8 +64,11 @@ export function BlockCard({ block, onClick, onDelete, onDragStart, onResize }) {
               <div className="text-xs font-semibold truncate" style={{ color: textColor }}>
                 {block.client_name}
               </div>
-              <div className="text-[10px] font-medium opacity-70" style={{ color: textColor }}>
+              <div className="text-[10px] font-medium opacity-70 flex items-center gap-1" style={{ color: textColor }}>
                 {block.hours}h
+                {block.note && (
+                  <span className="inline-block w-1 h-1 rounded-full opacity-50" style={{ backgroundColor: textColor }} />
+                )}
               </div>
             </div>
             <button

@@ -10,6 +10,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
   const [slot, setSlot] = useState('AM')
   const [date, setDate] = useState('')
   const [clientId, setClientId] = useState('')
+  const [note, setNote] = useState('')
 
   // Reset state when block changes
   useEffect(() => {
@@ -18,6 +19,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
       setSlot(block.slot || 'AM')
       setDate(block.date || '')
       setClientId(block.client_id?.toString() || '')
+      setNote(block.note || '')
     }
   }, [block])
 
@@ -29,6 +31,7 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
       slot,
       date,
       client_id: selectedClient?.id ?? block.client_id,
+      note: note.trim() || undefined,
     })
     onOpenChange(false)
   }
@@ -94,6 +97,16 @@ export function BlockEditDialog({ block, open, onOpenChange, onSave, onDelete, c
               <span>4h</span>
               <span>10h</span>
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Label>Note</Label>
+            <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              rows={3}
+              placeholder="Add a note..."
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+            />
           </div>
         </div>
         <DialogFooter className="flex !justify-between">

@@ -100,6 +100,9 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
                       onClick={() => onBlockClick(block)}
                     >
                       {block.client_name} · {block.hours}h
+                      {block.note && (
+                        <span className="inline-block w-1 h-1 rounded-full ml-0.5 opacity-50 align-middle" style={{ backgroundColor: getTextColorForBg(block.client_color, dark) }} />
+                      )}
                     </div>
                   )
                 ))}
