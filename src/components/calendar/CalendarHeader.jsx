@@ -3,18 +3,21 @@ import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addMonths, subMonth
 import { ChevronLeft, ChevronRight, Calendar, Sun, Moon, Download, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
-export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dark, onToggleTheme, activeTab, onTabChange, onExport, onImport }) {
+export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dark, onToggleTheme, activeTab, onTabChange, onExport, onImport, sidebarCollapsed = false }) {
   const fileInputRef = useRef(null)
+  const isNarrow = useMediaQuery(sidebarCollapsed ? '(max-width: 1439px)' : '(max-width: 1719px)')
+  const monthStep = isNarrow ? 1 : 4
 
   const navigatePrev = () => {
     if (view === 'week') setCurrentDate(d => subWeeks(d, 1))
-    else if (view === 'month') setCurrentDate(d => subMonths(d, 4))
+    else if (view === 'month') setCurrentDate(d => subMonths(d, monthStep))
   }
 
   const navigateNext = () => {
     if (view === 'week') setCurrentDate(d => addWeeks(d, 1))
-    else if (view === 'month') setCurrentDate(d => addMonths(d, 4))
+    else if (view === 'month') setCurrentDate(d => addMonths(d, monthStep))
   }
 
   const goToday = () => setCurrentDate(new Date())
@@ -27,6 +30,9 @@ export function CalendarHeader({ currentDate, setCurrentDate, view, setView, dar
         return format(ws, 'MMMM yyyy')
       }
       return `${format(ws, 'MMM d')} – ${format(we, 'MMM d, yyyy')}`
+    }
+    if (isNarrow) {
+      return format(currentDate, 'MMMM yyyy')
     }
     const lastMonth = addMonths(currentDate, 3)
     if (currentDate.getFullYear() === lastMonth.getFullYear()) {

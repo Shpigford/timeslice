@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Edit2, Trash2, GripVertical, Clock, Archive, ArchiveRestore, ChevronDown, ChevronRight, Github } from 'lucide-react'
+import { Plus, Edit2, Trash2, GripVertical, Clock, Archive, ArchiveRestore, ChevronDown, ChevronRight, Github, PanelLeft, PanelLeftClose } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +9,7 @@ import { CLIENT_COLORS } from '@/lib/utils'
 import { setDragPreview } from '@/lib/dragPreview'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, blocks }) {
+export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, blocks, collapsed = false, onToggleCollapse }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingClient, setEditingClient] = useState(null)
   const [name, setName] = useState('')
@@ -69,21 +69,72 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
   })
 
   return (
-    <div className="w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-full">
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Clients</h2>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+    <div className={`${collapsed ? 'w-14' : 'w-64'} border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-[width] duration-200 ease-out motion-reduce:transition-none`}>
+      <div className={`${collapsed ? 'p-2' : 'p-4'} border-b border-sidebar-border`}>
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={onToggleCollapse}
+              title="Expand sidebar (⌘\)"
+              aria-label="Expand sidebar"
+              aria-expanded="false"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={openAdd} title="Add client" aria-label="Add client">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 flex-shrink-0"
+              onClick={onToggleCollapse}
+              title="Collapse sidebar (⌘\)"
+              aria-label="Collapse sidebar"
+              aria-expanded="true"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+            <h2 className="flex-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Clients</h2>
+            <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={openAdd}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className={`flex-1 overflow-y-auto ${collapsed ? 'p-1' : 'p-2'}`}>
         <AnimatePresence>
           {activeClients.map(client => {
             const used = monthlyTotals[client.id] || 0
             const budget = client.monthly_hours || 0
+
+            if (collapsed) {
+              return (
+                <div
+                  key={client.id}
+                  className="flex items-center justify-center p-2 rounded-lg hover:bg-accent cursor-grab active:cursor-grabbing transition-colors mb-0.5"
+                  draggable="true"
+                  title={`${client.name}${budget > 0 ? ` · ${used}/${budget} hrs` : ''}`}
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/timeslice-client', JSON.stringify(client))
+                    e.dataTransfer.effectAllowed = 'copy'
+                    setDragPreview(e, client.name, client.color)
+                  }}
+                >
+                  <div
+                    className="w-3.5 h-3.5 rounded-full ring-1 ring-black/10"
+                    style={{ backgroundColor: client.color }}
+                  />
+                </div>
+              )
+            }
 
             return (
               <div
@@ -155,7 +206,7 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
           })}
         </AnimatePresence>
 
-        {activeClients.length === 0 && archivedClients.length === 0 && (
+        {!collapsed && activeClients.length === 0 && archivedClients.length === 0 && (
           <div className="text-center text-sm text-muted-foreground py-8 px-4">
             No clients yet. Click + to add your first client.
           </div>
@@ -164,52 +215,70 @@ export function ClientSidebar({ clients, onAdd, onUpdate, onDelete, onArchive, b
         {archivedClients.length > 0 && (
           <div className="mt-3 pt-3 border-t border-sidebar-border">
             <button
-              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 w-full"
+              className={`flex items-center ${collapsed ? 'justify-center' : 'gap-1.5 px-2'} text-xs font-medium text-muted-foreground hover:text-foreground transition-colors py-1 w-full`}
               onClick={() => setShowArchived(!showArchived)}
+              title={collapsed ? `Archived (${archivedClients.length})` : undefined}
             >
               {showArchived ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-              Archived ({archivedClients.length})
+              {!collapsed && `Archived (${archivedClients.length})`}
             </button>
             {showArchived && (
               <div className="mt-1">
-                {archivedClients.map(client => (
-                  <div
-                    key={client.id}
-                    className="group flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors mb-1 opacity-60"
-                  >
+                {archivedClients.map(client => {
+                  if (collapsed) {
+                    return (
+                      <div
+                        key={client.id}
+                        className="flex items-center justify-center p-2 rounded-lg hover:bg-accent transition-colors mb-0.5 opacity-60"
+                        title={client.name}
+                      >
+                        <div
+                          className="w-3.5 h-3.5 rounded-full ring-1 ring-black/10"
+                          style={{ backgroundColor: client.color }}
+                        />
+                      </div>
+                    )
+                  }
+                  return (
                     <div
-                      className="w-3 h-3 rounded-full flex-shrink-0 ring-1 ring-black/10"
-                      style={{ backgroundColor: client.color }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{client.name}</div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => onArchive(client.id)}
-                      title="Unarchive"
+                      key={client.id}
+                      className="group flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors mb-1 opacity-60"
                     >
-                      <ArchiveRestore className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+                      <div
+                        className="w-3 h-3 rounded-full flex-shrink-0 ring-1 ring-black/10"
+                        style={{ backgroundColor: client.color }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{client.name}</div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => onArchive(client.id)}
+                        title="Unarchive"
+                      >
+                        <ArchiveRestore className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
         )}
       </div>
 
-      <div className="px-4 py-3 border-t border-sidebar-border">
+      <div className={`${collapsed ? 'px-2 py-3 flex justify-center' : 'px-4 py-3'} border-t border-sidebar-border`}>
         <a
           href="https://github.com/Shpigford/timeslice"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className={`flex items-center ${collapsed ? 'justify-center' : 'gap-1.5'} text-xs text-muted-foreground hover:text-foreground transition-colors`}
+          title={collapsed ? 'Open source on GitHub' : undefined}
         >
           <Github className="h-3.5 w-3.5" />
-          Open source on GitHub
+          {!collapsed && 'Open source on GitHub'}
         </a>
       </div>
 

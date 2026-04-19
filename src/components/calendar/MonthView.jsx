@@ -7,6 +7,7 @@ import {
 import { motion } from 'framer-motion'
 import { getTextColorForBg } from '@/lib/utils'
 import { useTheme } from '@/hooks/useTheme'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop, onBlockClick, onBlockUpdate, onContextMenu, dark }) {
   const calendarDays = useMemo(() => {
@@ -120,8 +121,9 @@ function MonthGrid({ month, blocks, dragOverDay, onDragOver, onDragLeave, onDrop
   )
 }
 
-export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onBlockDelete, onBlockUpdate, onAddBlockedTime }) {
+export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onBlockDelete, onBlockUpdate, onAddBlockedTime, sidebarCollapsed = false }) {
   const { dark } = useTheme()
+  const isNarrow = useMediaQuery(sidebarCollapsed ? '(max-width: 1439px)' : '(max-width: 1719px)')
   const [dragOverDay, setDragOverDay] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
 
@@ -144,12 +146,11 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
     setContextMenu({ x: e.clientX, y: e.clientY, date: format(day, 'yyyy-MM-dd') })
   }
 
-  const months = useMemo(() => [
-    currentDate,
-    addMonths(currentDate, 1),
-    addMonths(currentDate, 2),
-    addMonths(currentDate, 3),
-  ], [currentDate])
+  const months = useMemo(() => (
+    isNarrow
+      ? [currentDate]
+      : [currentDate, addMonths(currentDate, 1), addMonths(currentDate, 2), addMonths(currentDate, 3)]
+  ), [currentDate, isNarrow])
 
   const blocksByDate = useMemo(() => {
     const map = {}
@@ -220,34 +221,57 @@ export function MonthView({ currentDate, blocks, onDropClient, onBlockClick, onB
       animate={{ opacity: 1 }}
       className="flex-1 overflow-auto p-4"
     >
-      {/* 2x2 grid of months */}
-      {[0, 2].map(row => (
-        <div key={row} className={`flex gap-6 ${row === 0 ? 'mb-6' : ''}`}>
-          {months.slice(row, row + 2).map((month, i) => (
-            <div key={i} className="flex-1 min-w-0">
-              <div className="grid mb-1" style={{ gridTemplateColumns: "0.4fr 1fr 1fr 1fr 1fr 1fr 0.4fr" }}>
-                {weekDays.map(d => (
-                  <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
-                    {d}
-                  </div>
-                ))}
+      {isNarrow ? (
+        <div className="flex-1 min-w-0">
+          <div className="grid mb-1" style={{ gridTemplateColumns: "0.4fr 1fr 1fr 1fr 1fr 1fr 0.4fr" }}>
+            {weekDays.map(d => (
+              <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
+                {d}
               </div>
-              <MonthGrid
-                month={month}
-                blocks={blocks}
-                dragOverDay={dragOverDay}
-                onDragOver={handleDragOver}
-                onDragLeave={() => setDragOverDay(null)}
-                onDrop={handleDrop}
-                onBlockClick={onBlockClick}
-                onBlockUpdate={onBlockUpdate}
-                onContextMenu={handleContextMenu}
-                dark={dark}
-              />
-            </div>
-          ))}
+            ))}
+          </div>
+          <MonthGrid
+            month={months[0]}
+            blocks={blocks}
+            dragOverDay={dragOverDay}
+            onDragOver={handleDragOver}
+            onDragLeave={() => setDragOverDay(null)}
+            onDrop={handleDrop}
+            onBlockClick={onBlockClick}
+            onBlockUpdate={onBlockUpdate}
+            onContextMenu={handleContextMenu}
+            dark={dark}
+          />
         </div>
-      ))}
+      ) : (
+        [0, 2].map(row => (
+          <div key={row} className={`flex gap-6 ${row === 0 ? 'mb-6' : ''}`}>
+            {months.slice(row, row + 2).map((month, i) => (
+              <div key={i} className="flex-1 min-w-0">
+                <div className="grid mb-1" style={{ gridTemplateColumns: "0.4fr 1fr 1fr 1fr 1fr 1fr 0.4fr" }}>
+                  {weekDays.map(d => (
+                    <div key={d} className="text-center text-[10px] font-medium text-muted-foreground uppercase py-1">
+                      {d}
+                    </div>
+                  ))}
+                </div>
+                <MonthGrid
+                  month={month}
+                  blocks={blocks}
+                  dragOverDay={dragOverDay}
+                  onDragOver={handleDragOver}
+                  onDragLeave={() => setDragOverDay(null)}
+                  onDrop={handleDrop}
+                  onBlockClick={onBlockClick}
+                  onBlockUpdate={onBlockUpdate}
+                  onContextMenu={handleContextMenu}
+                  dark={dark}
+                />
+              </div>
+            ))}
+          </div>
+        ))
+      )}
 
       {contextMenu && createPortal(
         <div

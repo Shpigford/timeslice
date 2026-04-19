@@ -15,9 +15,20 @@ import { AnimatePresence, motion } from 'framer-motion'
 export default function App() {
   const store = useStore()
   const theme = useTheme()
-  const { currentDate, setCurrentDate, view } = store
+  const { currentDate, setCurrentDate, view, sidebarCollapsed, toggleSidebar } = store
   const [editingBlock, setEditingBlock] = useState(null)
   const [activeTab, setActiveTab] = useState('calendar')
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '\\') {
+        e.preventDefault()
+        toggleSidebar()
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [toggleSidebar])
 
   // Refresh today-based UI at midnight without yanking users off non-today views.
   const [, setMidnightTick] = useState(0)
@@ -103,6 +114,7 @@ export default function App() {
         onTabChange={setActiveTab}
         onExport={store.exportData}
         onImport={store.importData}
+        sidebarCollapsed={sidebarCollapsed}
       />
 
       {store.isDemo && <DemoBanner onClear={store.clearDemoData} />}
@@ -115,6 +127,8 @@ export default function App() {
           onUpdate={store.updateClient}
           onDelete={store.deleteClient}
           onArchive={store.archiveClient}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
         />
 
         <main className="flex-1 overflow-hidden flex flex-col">
@@ -148,6 +162,7 @@ export default function App() {
                     onBlockDelete={confirmBlockDelete}
                     onBlockUpdate={handleBlockUpdate}
                     onAddBlockedTime={handleAddBlockedTime}
+                    sidebarCollapsed={sidebarCollapsed}
                   />
                 )}
 
