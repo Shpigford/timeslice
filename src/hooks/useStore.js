@@ -36,6 +36,18 @@ export function useStore() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setViewState] = useState(() => localStorage.getItem('timeslice-view') || 'month')
   const setView = (v) => { localStorage.setItem('timeslice-view', v); setViewState(v) }
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const stored = localStorage.getItem('timeslice-sidebar-collapsed')
+    if (stored !== null) return stored === 'true'
+    return typeof window !== 'undefined' && window.innerWidth < 1280
+  })
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(prev => {
+      const next = !prev
+      localStorage.setItem('timeslice-sidebar-collapsed', String(next))
+      return next
+    })
+  }, [])
 
   // Client CRUD
   const addClient = useCallback((name, monthlyHours = 0, selectedColor) => {
@@ -185,6 +197,7 @@ export function useStore() {
     clients, blocks, loading: false,
     currentDate, setCurrentDate,
     view, setView,
+    sidebarCollapsed, toggleSidebar,
     addClient, updateClient, deleteClient, archiveClient,
     addBlock, updateBlock, deleteBlock, addBlockedTime,
     exportData, importData,
